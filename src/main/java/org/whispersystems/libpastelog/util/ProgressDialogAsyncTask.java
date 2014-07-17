@@ -1,4 +1,4 @@
-package org.whispersystems.pastelog.util;
+package org.whispersystems.libpastelog.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;

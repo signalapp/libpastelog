@@ -1,4 +1,4 @@
-package org.whispersystems.pastelog;
+package org.whispersystems.libpastelog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,8 +35,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.whispersystems.pastelog.util.ProgressDialogAsyncTask;
-import org.whispersystems.pastelog.util.Scrubber;
+
+import org.whispersystems.libpastelog.util.ProgressDialogAsyncTask;
+import org.whispersystems.libpastelog.util.Scrubber;
 
 import java.io.BufferedReader;
 import java.io.IOException;
