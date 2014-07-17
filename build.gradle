@@ -9,6 +9,11 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = "org.whispersystems.libpastelog"
+archivesBaseName = "libpastelog"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -31,7 +36,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
     buildTypes {
         release {
@@ -40,3 +45,53 @@ android {
         }
     }
 }
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'libpastelog'
+        packaging 'aar'
+        // optionally artifactId can be defined here
+        description 'Easily allow users to post debug logs online'
+        url 'https://github.com/whispersystems/libpastelog'
+
+        scm {
+          connection 'scm:git:https://github.com/whispersystems/libpastelog.git'
+          developerConnection 'scm:svn:https://github.com/whispersystems/libpastelog.git'
+          url 'https://github.com/whispersystems/libpastelog.git'
+        }
+
+        licenses {
+          license {
+            name 'GPLv3'
+            url 'http://www.gnu.org/licenses/gpl-3.0.html'
+          }
+        }
+
+        developers {
+          developer {
+            id 'mcginty'
+            name 'Jake McGinty'
+            email 'me@jake.su'
+          }
+        }
+      }
+    }
+  }
+}
+
