@@ -1,4 +1,4 @@
-package org.whispersystems.textsecure.submitlog;
+package org.whispersystems.pastelog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.ClipboardManager;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -36,8 +35,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.whispersystems.textsecure.submitlog.util.ProgressDialogAsyncTask;
-import org.whispersystems.textsecure.submitlog.util.Scrubber;
+import org.whispersystems.pastelog.util.ProgressDialogAsyncTask;
+import org.whispersystems.pastelog.util.Scrubber;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,7 +52,7 @@ import java.util.Map;
 /**
  * A helper {@link Fragment} to preview and submit logcat information to a public pastebin.
  * Activities that contain this fragment must implement the
- * {@link org.whispersystems.textsecure.submitlog.SubmitLogFragment.OnLogSubmittedListener} interface
+ * {@link SubmitLogFragment.OnLogSubmittedListener} interface
  * to handle interaction events.
  * Use the {@link SubmitLogFragment#newInstance} factory method to
  * create an instance of this fragment.

@@ -1,4 +1,4 @@
-package org.whispersystems.textsecure.submitlog.util;
+package org.whispersystems.pastelog.util;
 
 import android.util.Log;
 

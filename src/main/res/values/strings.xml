@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SubmitLog</string>
+    <string name="app_name">libpastelog</string>
     <string name="log_submit_activity__confirmation">This log will be posted publicly online for contributors to view. You may examine/edit the logs before submitting.</string>
     <string name="log_submit_activity__button_cancel">Don\'t submit</string>
     <string name="log_submit_activity__button_ok">Submit</string>
