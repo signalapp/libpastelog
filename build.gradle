@@ -1,3 +1,6 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
 buildscript {
     repositories {
         mavenCentral()
@@ -7,14 +10,6 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
-apply plugin: 'signing'
-
-group = "org.whispersystems.libpastelog"
-archivesBaseName = "libpastelog"
-version = "1.0.0"
-
 repositories {
     mavenCentral()
     maven {
@@ -23,20 +18,26 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:19.0.+'
     compile 'org.whispersystems:gson:2.2.4'
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    buildToolsVersion '19.1.0'
 
-    defaultConfig {
-        applicationId "org.whispersystems.textsecure.submitlog"
-        minSdkVersion 9
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0.0"
+    android {
+        sourceSets {
+            main {
+                manifest.srcFile 'AndroidManifest.xml'
+                java.srcDirs = ['src']
+                resources.srcDirs = ['src']
+                aidl.srcDirs = ['src']
+                renderscript.srcDirs = ['src']
+                res.srcDirs = ['res']
+                jniLibs.srcDirs = ['libs']
+            }
+        }
     }
     buildTypes {
         release {
@@ -46,52 +47,37 @@ android {
     }
 }
 
-signing {
-    sign configurations.archives
-}
-
 uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+    repositories.mavenDeployer {
+        repository(url: "file:///${project.buildDir}/mvn-repo")
 
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
+        pom.groupId     = 'org.whispersystems'
+        pom.artifactId  = 'libpastelog'
+        pom.version     = '1.0.0'
+        pom.packaging   = 'aar'
 
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
-      }
-
-      pom.project {
-        name 'libpastelog'
-        packaging 'aar'
-        // optionally artifactId can be defined here
-        description 'Easily allow users to post debug logs online'
-        url 'https://github.com/whispersystems/libpastelog'
-
-        scm {
-          connection 'scm:git:https://github.com/whispersystems/libpastelog.git'
-          developerConnection 'scm:svn:https://github.com/whispersystems/libpastelog.git'
-          url 'https://github.com/whispersystems/libpastelog.git'
+        pom.project {
+            name 'libpastelog'
+            description 'Easily allow users to post debug logs online'
+            url 'https://github.com/whispersystems/libpastelog'
+            scm {
+                connection 'scm:git:https://github.com/whispersystems/libpastelog.git'
+                developerConnection 'scm:svn:https://github.com/whispersystems/libpastelog.git'
+                url 'https://github.com/whispersystems/libpastelog.git'
+            }
+            licenses {
+                license {
+                    name 'GPLv3'
+                    url 'http://www.gnu.org/licenses/gpl-3.0.html'
+                }
+            }
+            developers {
+                developer {
+                    id 'mcginty'
+                    name 'Jake McGinty'
+                    email 'me@jake.su'
+                }
+            }
         }
-
-        licenses {
-          license {
-            name 'GPLv3'
-            url 'http://www.gnu.org/licenses/gpl-3.0.html'
-          }
-        }
-
-        developers {
-          developer {
-            id 'mcginty'
-            name 'Jake McGinty'
-            email 'me@jake.su'
-          }
-        }
-      }
     }
-  }
 }
-
