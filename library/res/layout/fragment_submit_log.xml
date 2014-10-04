@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
+~ /**
+~ * Copyright (C) 2014 Whisper Systems
+~ *
+~ * This program is free software: you can redistribute it and/or modify
+~ * it under the terms of the GNU General Public License as published by
+~ * the Free Software Foundation, either version 3 of the License, or
+~ * (at your option) any later version.
+~ *
+~ * This program is distributed in the hope that it will be useful,
+~ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+~ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+~ * GNU General Public License for more details.
+~ *
+~ * You should have received a copy of the GNU General Public License
+~ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+~ */
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
@@ -10,6 +29,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="2">
+
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="vertical">
@@ -18,12 +38,12 @@
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
                       android:textSize="15sp"
-                      android:text="@string/log_submit_activity__confirmation"
+                      android:text="@string/log_submit_activity__this_log_will_be_posted_online"
                       android:paddingLeft="15dp"
                       android:paddingRight="15dp"
                       android:paddingTop="10dp"
                       android:paddingBottom="10dp"
-                      android:background="#44ff2d00"
+                      android:background="@color/libpastelog_confirmation_background"
                       android:fontFamily="sans-serif-light"
                       tools:ignore="UnusedAttribute"/>
 
@@ -48,12 +68,12 @@
         <Button android:id="@+id/cancel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/log_submit_activity__button_cancel"
+                android:text="@string/log_submit_activity__button_dont_submit"
                 android:layout_weight="1"/>
         <Button android:id="@+id/ok"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/log_submit_activity__button_ok"
+                android:text="@string/log_submit_activity__button_submit"
                 android:layout_weight="1"/>
     </LinearLayout>
 

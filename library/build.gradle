@@ -1,0 +1,67 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 19
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            resources.srcDirs = ['src']
+            res.srcDirs = ['res']
+            java.srcDirs = ['src']
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.0.+'
+    compile 'org.whispersystems:gson:2.2.4'
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "file:///${project.buildDir}/mvn-repo")
+
+        pom.groupId     = 'org.whispersystems'
+        pom.artifactId  = 'libpastelog'
+        pom.version     = '1.0.0'
+        pom.packaging   = 'aar'
+
+        pom.project {
+            name 'libpastelog'
+            description 'Easily allow users to post debug logs online'
+            url 'https://github.com/whispersystems/libpastelog'
+            scm {
+                connection 'scm:git:https://github.com/whispersystems/libpastelog.git'
+                developerConnection 'scm:svn:https://github.com/whispersystems/libpastelog.git'
+                url 'https://github.com/whispersystems/libpastelog.git'
+            }
+            licenses {
+                license {
+                    name 'GPLv3'
+                    url 'http://www.gnu.org/licenses/gpl-3.0.html'
+                }
+            }
+            developers {
+                developer {
+                    id 'mcginty'
+                    name 'Jake McGinty'
+                    email 'me@jake.su'
+                }
+                developer {
+                    id 'rhodey'
+                    name 'rhodey orbits'
+                    email 'rhodey@anhonesteffort.org'
+                }
+            }
+        }
+    }
+}

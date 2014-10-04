@@ -1,9 +1,28 @@
+/*
+ * Copyright (C) 2014 Open Whisper Systems
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.whispersystems.libpastelog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -65,6 +84,10 @@ public class SubmitLogFragment extends Fragment {
   private EditText logPreview;
   private Button   okButton;
   private Button   cancelButton;
+  private String   supportEmailAddress;
+  private String   supportEmailSubject;
+  private String   hackSavedLogUrl;
+  private boolean  emailActivityWasStarted = false;
 
   private static final String API_ENDPOINT = "https://api.github.com/gists";
 
@@ -76,8 +99,15 @@ public class SubmitLogFragment extends Fragment {
    *
    * @return A new instance of fragment SubmitLogFragment.
    */
-  public static SubmitLogFragment newInstance() {
-    return new SubmitLogFragment();
+  public static SubmitLogFragment newInstance(String supportEmailAddress,
+                                              String supportEmailSubject)
+  {
+    SubmitLogFragment fragment = new SubmitLogFragment();
+
+    fragment.supportEmailAddress = supportEmailAddress;
+    fragment.supportEmailSubject = supportEmailSubject;
+
+    return fragment;
   }
 
   public SubmitLogFragment() { }
@@ -108,6 +138,14 @@ public class SubmitLogFragment extends Fragment {
     } catch (ClassCastException e) {
       throw new ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener");
     }
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    if (emailActivityWasStarted && mListener != null)
+      mListener.onSuccess();
   }
 
   @Override
@@ -156,6 +194,104 @@ public class SubmitLogFragment extends Fragment {
     }
   }
 
+  private Intent getIntentForSupportEmail(String logUrl) {
+    Intent emailSendIntent = new Intent(Intent.ACTION_SEND);
+
+    emailSendIntent.putExtra(Intent.EXTRA_EMAIL,   new String[] { supportEmailAddress });
+    emailSendIntent.putExtra(Intent.EXTRA_SUBJECT, supportEmailSubject);
+    emailSendIntent.putExtra(
+        Intent.EXTRA_TEXT,
+        getString(R.string.log_submit_activity__please_review_this_log_from_my_app, logUrl)
+    );
+    emailSendIntent.setType("message/rfc822");
+
+    return emailSendIntent;
+  }
+
+  private void handleShowChooserForIntent(final Intent intent, String chooserTitle) {
+    final AlertDialog.Builder    builder = new AlertDialog.Builder(getActivity());
+    final ShareIntentListAdapter adapter = ShareIntentListAdapter.getAdapterForIntent(getActivity(), intent);
+
+    builder.setTitle(chooserTitle)
+           .setAdapter(adapter, new DialogInterface.OnClickListener() {
+
+             @Override
+             public void onClick(DialogInterface dialog, int which) {
+               ActivityInfo info = adapter.getItem(which).activityInfo;
+               intent.setClassName(info.packageName, info.name);
+               startActivity(intent);
+
+               emailActivityWasStarted = true;
+             }
+
+           })
+           .setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+             @Override
+             public void onCancel(DialogInterface dialogInterface) {
+               if (hackSavedLogUrl != null)
+                 handleShowSuccessDialog(hackSavedLogUrl);
+             }
+
+           })
+           .create().show();
+  }
+
+  private TextView handleBuildSuccessTextView(final String logUrl) {
+    TextView showText = new TextView(getActivity());
+
+    showText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+    showText.setPadding(15, 30, 15, 30);
+    showText.setText(getString(R.string.log_submit_activity__copy_this_url_and_add_it_to_your_issue, logUrl));
+    showText.setAutoLinkMask(Activity.RESULT_OK);
+    showText.setMovementMethod(LinkMovementMethod.getInstance());
+    showText.setOnLongClickListener(new View.OnLongClickListener() {
+
+      @Override
+      public boolean onLongClick(View v) {
+        @SuppressWarnings("deprecation")
+        ClipboardManager manager =
+            (ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+        manager.setText(logUrl);
+        Toast.makeText(getActivity(),
+                       R.string.log_submit_activity__copied_to_clipboard,
+                       Toast.LENGTH_SHORT).show();
+        return true;
+      }
+    });
+
+    Linkify.addLinks(showText, Linkify.WEB_URLS);
+    return showText;
+  }
+
+  private void handleShowSuccessDialog(final String logUrl) {
+    TextView            showText = handleBuildSuccessTextView(logUrl);
+    AlertDialog.Builder builder  = new AlertDialog.Builder(getActivity());
+
+    builder.setTitle(R.string.log_submit_activity__success)
+           .setView(showText)
+           .setCancelable(false)
+           .setNeutralButton(R.string.log_submit_activity__button_got_it, new DialogInterface.OnClickListener() {
+             @Override
+             public void onClick(DialogInterface dialogInterface, int i) {
+               dialogInterface.dismiss();
+               if (mListener != null) mListener.onSuccess();
+             }
+           })
+           .setPositiveButton(R.string.log_submit_activity__button_compose_email, new DialogInterface.OnClickListener() {
+             @Override
+             public void onClick(DialogInterface dialogInterface, int i) {
+               handleShowChooserForIntent(
+                   getIntentForSupportEmail(logUrl),
+                   getString(R.string.log_submit_activity__choose_email_app)
+               );
+             }
+           });
+
+    builder.create().show();
+    hackSavedLogUrl = logUrl;
+  }
+
   private class PopulateLogcatAsyncTask extends AsyncTask<Void,Void,String> {
 
     @Override
@@ -169,7 +305,7 @@ public class SubmitLogFragment extends Fragment {
     @Override
     protected void onPreExecute() {
       super.onPreExecute();
-      logPreview.setText(R.string.log_submit_activity__loading_logcat);
+      logPreview.setText(R.string.log_submit_activity__loading_logs);
       okButton.setEnabled(false);
     }
 
@@ -189,7 +325,7 @@ public class SubmitLogFragment extends Fragment {
     private final String         paste;
 
     public SubmitToPastebinAsyncTask(String paste) {
-      super(getActivity(), R.string.log_submit_activity__submitting, R.string.log_submit_activity__posting_logs);
+      super(getActivity(), R.string.log_submit_activity__submitting, R.string.log_submit_activity__uploading_logs);
       this.paste = paste;
     }
 
@@ -239,48 +375,10 @@ public class SubmitLogFragment extends Fragment {
     protected void onPostExecute(final String response) {
       super.onPostExecute(response);
 
-      if (response != null) {
-        TextView showText = new TextView(getActivity());
-        showText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        showText.setPadding(15, 30, 15, 30);
-        showText.setText(getString(R.string.log_submit_activity__your_pastebin_url, response));
-        showText.setAutoLinkMask(Activity.RESULT_OK);
-        showText.setMovementMethod(LinkMovementMethod.getInstance());
-        Linkify.addLinks(showText, Linkify.WEB_URLS);
-        showText.setOnLongClickListener(new View.OnLongClickListener() {
-
-          @Override
-          public boolean onLongClick(View v) {
-            // Copy the Text to the clipboard
-            @SuppressWarnings("deprecation")
-            ClipboardManager manager =
-                (ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
-            manager.setText(response);
-            Toast.makeText(getActivity().getApplicationContext(), R.string.log_submit_activity__copied_to_clipboard,
-                           Toast.LENGTH_SHORT).show();
-            return true;
-          }
-        });
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.log_submit_activity__log_submit_success_title)
-               .setView(showText)
-               .setCancelable(false)
-               .setNeutralButton(R.string.log_submit_activity__log_got_it, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialogInterface, int i) {
-                   dialogInterface.dismiss();
-                   if (mListener != null) mListener.onSuccess();
-                 }
-               });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-      } else {
-        if (response == null) {
-          Log.w(TAG, "Response was null from Pastebin API.");
-        } else {
-          Log.w(TAG, "Response seemed like an error: " + response);
-        }
+      if (response != null)
+        handleShowSuccessDialog(response);
+      else {
+        Log.w(TAG, "Response was null from Pastebin API.");
         if (mListener != null) mListener.onFailure();
       }
     }
