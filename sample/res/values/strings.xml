@@ -21,5 +21,13 @@
 
 <resources>
     <string name="app_name">libpastelog</string>
+
+    <string name="support_email_address">libpastelog@whispersystems.org</string>
+    <string name="support_email_subject">libpastelog debug log</string>
+
     <string name="send_debug_log">Send debug log</string>
+    <string name="succeeded">succeeded</string>
+    <string name="failed">failed</string>
+    <string name="cancelled">cancelled</string>
+
 </resources>

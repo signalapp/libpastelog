@@ -38,7 +38,7 @@
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
                       android:textSize="15sp"
-                      android:text="@string/log_submit_activity__confirmation"
+                      android:text="@string/log_submit_activity__this_log_will_be_posted_online"
                       android:paddingLeft="15dp"
                       android:paddingRight="15dp"
                       android:paddingTop="10dp"
@@ -68,12 +68,12 @@
         <Button android:id="@+id/cancel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/log_submit_activity__button_cancel"
+                android:text="@string/log_submit_activity__button_dont_submit"
                 android:layout_weight="1"/>
         <Button android:id="@+id/ok"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/log_submit_activity__button_ok"
+                android:text="@string/log_submit_activity__button_submit"
                 android:layout_weight="1"/>
     </LinearLayout>
 
