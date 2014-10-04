@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -32,8 +31,6 @@ import org.whispersystems.libpastelog.SubmitLogFragment;
  */
 public class SendLogActivity extends FragmentActivity implements SubmitLogFragment.OnLogSubmittedListener {
 
-  private static final String TAG = "org.whispersystems.libpastelog.sample.SendLogActivity";
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -42,10 +39,10 @@ public class SendLogActivity extends FragmentActivity implements SubmitLogFragme
     getActionBar().setTitle(R.string.send_debug_log);
 
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-    Fragment            sendLogFragment     = SubmitLogFragment.newInstance();
+    Fragment            submitLogFragment   = SubmitLogFragment.newInstance(getString(R.string.support_email_address),
+                                                                            getString(R.string.support_email_subject));
 
-    sendLogFragment.setHasOptionsMenu(true);
-    fragmentTransaction.replace(R.id.fragment_view, sendLogFragment);
+    fragmentTransaction.replace(R.id.fragment_view, submitLogFragment);
     fragmentTransaction.commit();
   }
 
@@ -62,22 +59,19 @@ public class SendLogActivity extends FragmentActivity implements SubmitLogFragme
 
   @Override
   public void onSuccess() {
-    Log.d(TAG, "onSuccess()");
-    Toast.makeText(getBaseContext(), "succeeded", Toast.LENGTH_LONG).show();
+    Toast.makeText(getBaseContext(), R.string.succeeded, Toast.LENGTH_LONG).show();
     finish();
   }
 
   @Override
   public void onFailure() {
-    Log.d(TAG, "onFailure()");
-    Toast.makeText(getBaseContext(), "failed", Toast.LENGTH_LONG).show();
+    Toast.makeText(getBaseContext(), R.string.failed, Toast.LENGTH_LONG).show();
     finish();
   }
 
   @Override
   public void onCancel() {
-    Log.d(TAG, "onCancel()");
-    Toast.makeText(getBaseContext(), "cancelled", Toast.LENGTH_LONG).show();
+    Toast.makeText(getBaseContext(), R.string.cancelled, Toast.LENGTH_LONG).show();
     finish();
   }
 }
