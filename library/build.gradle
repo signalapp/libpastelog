@@ -3,12 +3,12 @@ apply plugin: 'maven'
 
 android {
 
-    compileSdkVersion 19
-    buildToolsVersion '19.1.0'
+    compileSdkVersion 20
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 19
+        targetSdkVersion 20
     }
 
     sourceSets {
@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:20.0.0'
     compile 'org.whispersystems:gson:2.2.4'
 }
 
