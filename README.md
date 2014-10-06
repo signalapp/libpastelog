@@ -1,32 +1,31 @@
 # libpastelog
 A simple library that provides an easy fragment allowing users to throw debug logs in a pastebin (currently [gist](https://gist.github.com)) online.
 
-## Usage
-Include libpastelog in your Android app as a Maven dependency by adding the following lines to your `build.gradle` file:
-
+## Download
+Gradle:
 ```gradle
-...
-repositories {
-  ...
-  maven {
-    url "https://raw.github.com/whispersystems/maven/master/libpastelog/releases/"
-  }
-}
-...
-dependencies {
-  ...
-  compile 'org.whispersystems:libpastelog:1.0.0'
-}
+compile 'org.whispersystems:libpastelog:1.0.1'
 ```
 
+Maven:
+```xml
+<dependency>
+  <groupId>org.whispersystems</groupId>
+  <artifactId>libpastelog</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
+Or download the [latest JAR directly](https://repo1.maven.org/maven2/org/whispersystems/libpastelog/1.0.1/libpastelog-1.0.1.aar).
+
+## Usage
 Check out the sample application in `/sample`, note that:
   1. `@color/libpastelog_confirmation_background` can overridden within your app.
   2. `android.permission.INTERNET` is required.
   3. the parent activity must not be recreated by orientation changes `android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"`.
 
 ## Building
-`gradle build` - build the sample and library projects.  
-`gradle uploadArchives` - create a maven artifact in `/library/build/mvn-repo`.
+`./gradlew build` - build the sample and library projects.
 
 ## License
 
