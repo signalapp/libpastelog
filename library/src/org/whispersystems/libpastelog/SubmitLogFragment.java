@@ -67,8 +67,6 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 /**
  * A helper {@link Fragment} to preview and submit logcat information to a public pastebin.
  * Activities that contain this fragment must implement the
