@@ -108,6 +108,11 @@ public class SubmitLogFragment extends Fragment {
     return fragment;
   }
 
+  public static SubmitLogFragment newInstance()
+  {
+    return newInstance(null, null);
+  }
+
   public SubmitLogFragment() { }
 
   @Override
@@ -275,16 +280,18 @@ public class SubmitLogFragment extends Fragment {
                dialogInterface.dismiss();
                if (mListener != null) mListener.onSuccess();
              }
-           })
-           .setPositiveButton(R.string.log_submit_activity__button_compose_email, new DialogInterface.OnClickListener() {
-             @Override
-             public void onClick(DialogInterface dialogInterface, int i) {
-               handleShowChooserForIntent(
-                   getIntentForSupportEmail(logUrl),
-                   getString(R.string.log_submit_activity__choose_email_app)
-               );
-             }
            });
+    if (supportEmailAddress != null) {
+      builder.setPositiveButton(R.string.log_submit_activity__button_compose_email, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+          handleShowChooserForIntent(
+              getIntentForSupportEmail(logUrl),
+              getString(R.string.log_submit_activity__choose_email_app)
+          );
+        }
+      });
+    }
 
     builder.create().show();
     hackSavedLogUrl = logUrl;
