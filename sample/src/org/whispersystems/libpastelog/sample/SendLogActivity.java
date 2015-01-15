@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -37,6 +38,10 @@ public class SendLogActivity extends FragmentActivity implements SubmitLogFragme
 
     setContentView(R.layout.simple_fragment_activity);
     getActionBar().setTitle(R.string.send_debug_log);
+
+    for (int i=0; i<10; i++) {
+      Log.i("SendLog", "debug line " + i);
+    }
 
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     Fragment            submitLogFragment   = SubmitLogFragment.newInstance(getString(R.string.support_email_address),

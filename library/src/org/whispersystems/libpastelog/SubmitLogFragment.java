@@ -42,11 +42,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.thoughtcrimegson.Gson;
-import com.google.thoughtcrimegson.JsonElement;
-import com.google.thoughtcrimegson.JsonParser;
-import com.google.thoughtcrimegson.annotations.SerializedName;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -55,6 +50,8 @@ import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.whispersystems.libpastelog.util.ProgressDialogAsyncTask;
 import org.whispersystems.libpastelog.util.Scrubber;
 
@@ -64,6 +61,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -336,40 +334,53 @@ public class SubmitLogFragment extends Fragment {
 
     @Override
     protected String doInBackground(Void... voids) {
-      final Gson gson = new Gson();
       HttpURLConnection connection = null;
       try {
-        Map<String,GistPost.File> files = new HashMap<String, GistPost.File>();
-        files.put("cat.log", new GistPost.File(paste));
-        final byte[] post = gson.toJson(new GistPost(files)).getBytes();
+        final JSONObject outJson = new JSONObject();
+        final JSONObject catlog  = new JSONObject(Collections.singletonMap("content", paste));
+        final JSONObject files   = new JSONObject();
+        files.put("cat.log", catlog);
+        outJson.put("files", files);
+        outJson.put("public", false);
 
         HttpPost request = new HttpPost(API_ENDPOINT);
 
-        request.setEntity(new ByteArrayEntity(post));
+        Log.w(TAG, "request: " + outJson.toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response = httpclient.execute(request);
+        request.setEntity(new ByteArrayEntity(outJson.toString().getBytes()));
 
-        HttpEntity entity = response.getEntity();
+        HttpClient   httpclient = new DefaultHttpClient();
+        HttpResponse response   = httpclient.execute(request);
+
+        HttpEntity         entity        = response.getEntity();
         BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-        InputStream input = bufHttpEntity.getContent();
+        InputStream        input         = bufHttpEntity.getContent();
 
-        input.close();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"), 8);
+        StringBuilder  sb     = new StringBuilder();
 
-        JsonElement element = new JsonParser().parse(new InputStreamReader(input));
-        if (element.isJsonObject()) {
-          JsonElement url = element.getAsJsonObject().get("html_url");
-          if (url.isJsonPrimitive()) {
-            return url.getAsString();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          sb.append(line).append("\n");
+        }
+
+        String     responseBody = sb.toString();
+
+        Log.w(TAG, "responseBody: " + responseBody);
+
+        JSONObject element      = new JSONObject(responseBody);
+
+        if (element.has("html_url")) {
+          final String url = element.getString("html_url");
+          if (!TextUtils.isEmpty(url)) {
+            return url;
           }
         }
 
         throw new IOException("Gist's response was malformed");
 
-      } catch (MalformedURLException e) {
-        Log.e("ImageActivity", "bad url", e);
-      } catch (IOException e) {
-        Log.e("ImageActivity", "io error", e);
+      } catch (IOException | JSONException e) {
+        Log.w("ImageActivity", e);
       } finally {
         if (connection != null) connection.disconnect();
       }
@@ -410,29 +421,6 @@ public class SubmitLogFragment extends Fragment {
     }
 
     return builder.toString();
-  }
-
-  @SuppressWarnings("unused")
-  private static class GistPost {
-    private static class File {
-      private final String content;
-      public File(final String content) {
-        this.content = content;
-      }
-    }
-    private final String description;
-    private final Map<String,File> files;
-    @SerializedName("public")
-    private final boolean isPublic = false;
-
-    public GistPost(String description, Map<String,File> files) {
-      this.description = description;
-      this.files       = files;
-    }
-
-    public GistPost(Map<String,File> files) {
-      this(null, files);
-    }
   }
 
   /**
