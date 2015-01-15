@@ -60,10 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A helper {@link Fragment} to preview and submit logcat information to a public pastebin.
@@ -156,9 +153,9 @@ public class SubmitLogFragment extends Fragment {
   }
 
   private void initializeResources() {
-    logPreview =   (EditText) getView().findViewById(R.id.log_preview);
-    okButton =     (Button)   getView().findViewById(R.id.ok);
-    cancelButton = (Button)   getView().findViewById(R.id.cancel);
+    logPreview   = (EditText) getView().findViewById(R.id.log_preview);
+    okButton     = (Button  ) getView().findViewById(R.id.ok         );
+    cancelButton = (Button  ) getView().findViewById(R.id.cancel     );
 
     okButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -345,8 +342,6 @@ public class SubmitLogFragment extends Fragment {
 
         HttpPost request = new HttpPost(API_ENDPOINT);
 
-        Log.w(TAG, "request: " + outJson.toString());
-
         request.setEntity(new ByteArrayEntity(outJson.toString().getBytes()));
 
         HttpClient   httpclient = new DefaultHttpClient();
@@ -365,9 +360,6 @@ public class SubmitLogFragment extends Fragment {
         }
 
         String     responseBody = sb.toString();
-
-        Log.w(TAG, "responseBody: " + responseBody);
-
         JSONObject element      = new JSONObject(responseBody);
 
         if (element.has("html_url")) {
