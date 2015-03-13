@@ -3,12 +3,12 @@ apply plugin: 'maven'
 
 android {
 
-    compileSdkVersion 20
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.0'
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 20
+        targetSdkVersion 22
     }
 
     compileOptions {
@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:22.0.0'
 }
 
 apply from: 'https://raw.githubusercontent.com/chrisbanes/gradle-mvn-push/8cfffbbff6b9094af1c92318ea5d5a5bb0b8bb30/gradle-mvn-push.gradle'

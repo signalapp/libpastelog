@@ -17,7 +17,10 @@
 
 package org.whispersystems.libpastelog;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +29,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.ClipboardManager;
@@ -374,7 +379,7 @@ public class SubmitLogFragment extends Fragment {
       } catch (IOException | JSONException e) {
         Log.w("ImageActivity", e);
       } finally {
-        if (connection != null) connection.disconnect();
+        connection.disconnect();
       }
       return null;
     }
@@ -392,17 +397,45 @@ public class SubmitLogFragment extends Fragment {
     }
   }
 
+  private static long asMegs(long bytes) {
+    return bytes / 1048576L;
+  }
+
+  public static String getMemoryUsage(Context context) {
+    Runtime info = Runtime.getRuntime();
+    info.totalMemory();
+    return String.format("%dM (%.2f%% used, %dM max)",
+                         asMegs(info.totalMemory()),
+                         (float)info.freeMemory() / info.totalMemory(),
+                         asMegs(info.maxMemory()));
+  }
+
+  public static String getMemoryClass(Context context) {
+    ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+    String          lowMem          = "";
+
+    if (VERSION.SDK_INT >= VERSION_CODES.KITKAT && activityManager.isLowRamDevice()) {
+      lowMem = ", low-mem device";
+    }
+    return activityManager.getMemoryClass() + lowMem;
+  }
+
   private static String buildDescription(Context context) {
     final PackageManager pm      = context.getPackageManager();
     final StringBuilder  builder = new StringBuilder();
 
-    builder.append("Device : ")
+
+    builder.append("Device  : ")
            .append(Build.MANUFACTURER).append(" ")
            .append(Build.MODEL).append(" (")
            .append(Build.PRODUCT).append(")\n");
-    builder.append("Android: ").append(Build.DISPLAY).append("\n");
-    builder.append("OS Host: ").append(Build.HOST).append("\n");
-    builder.append("App    : ");
+    builder.append("Android : ").append(VERSION.RELEASE).append(" (")
+                               .append(VERSION.INCREMENTAL).append(", ")
+                               .append(Build.DISPLAY).append(")\n");
+    builder.append("Memory  : ").append(getMemoryUsage(context)).append("\n");
+    builder.append("Memclass: ").append(getMemoryClass(context)).append("\n");
+    builder.append("OS Host : ").append(Build.HOST).append("\n");
+    builder.append("App     : ");
     try {
       builder.append(pm.getApplicationLabel(pm.getApplicationInfo(context.getPackageName(), 0)))
              .append(" ")
