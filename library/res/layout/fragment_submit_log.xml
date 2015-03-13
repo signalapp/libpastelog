@@ -48,13 +48,14 @@
                       tools:ignore="UnusedAttribute"/>
 
             <EditText android:id="@+id/log_preview"
-                      android:layout_width="fill_parent"
+                      android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       style="?android:attr/textViewStyle"
                       android:padding="10dp"
                       android:background="@null"
                       android:fontFamily="monospace"
                       android:hint=""
+                      android:scrollHorizontally="true"
                       android:inputType="textImeMultiLine|textNoSuggestions|textMultiLine"
                       android:textSize="10sp"
                       tools:ignore="UnusedAttribute,SmallSp"/>

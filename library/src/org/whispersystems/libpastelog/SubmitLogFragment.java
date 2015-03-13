@@ -66,6 +66,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.Collections;
+import java.util.Locale;
 
 /**
  * A helper {@link Fragment} to preview and submit logcat information to a public pastebin.
@@ -404,12 +405,13 @@ public class SubmitLogFragment extends Fragment {
   public static String getMemoryUsage(Context context) {
     Runtime info = Runtime.getRuntime();
     info.totalMemory();
-    return String.format("%dM (%.2f%% used, %dM max)",
+    return String.format(Locale.ENGLISH, "%dM (%.2f%% used, %dM max)",
                          asMegs(info.totalMemory()),
                          (float)info.freeMemory() / info.totalMemory(),
                          asMegs(info.maxMemory()));
   }
 
+  @TargetApi(VERSION_CODES.KITKAT)
   public static String getMemoryClass(Context context) {
     ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
     String          lowMem          = "";
