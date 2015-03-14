@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 22
+        targetSdkVersion 21
     }
 
     compileOptions {
@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:support-v4:21.0.3'
 }
 
 apply from: 'https://raw.githubusercontent.com/chrisbanes/gradle-mvn-push/8cfffbbff6b9094af1c92318ea5d5a5bb0b8bb30/gradle-mvn-push.gradle'

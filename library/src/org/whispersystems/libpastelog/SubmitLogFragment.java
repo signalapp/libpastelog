@@ -337,7 +337,6 @@ public class SubmitLogFragment extends Fragment {
 
     @Override
     protected String doInBackground(Void... voids) {
-      HttpURLConnection connection = null;
       try {
         final JSONObject outJson = new JSONObject();
         final JSONObject catlog  = new JSONObject(Collections.singletonMap("content", paste));
@@ -379,8 +378,6 @@ public class SubmitLogFragment extends Fragment {
 
       } catch (IOException | JSONException e) {
         Log.w("ImageActivity", e);
-      } finally {
-        connection.disconnect();
       }
       return null;
     }
@@ -392,8 +389,8 @@ public class SubmitLogFragment extends Fragment {
       if (response != null)
         handleShowSuccessDialog(response);
       else {
-        Log.w(TAG, "Response was null from Pastebin API.");
-        if (mListener != null) mListener.onFailure();
+        Log.w(TAG, "Response was null from Gist API.");
+        Toast.makeText(getActivity(), R.string.log_submit_activity__network_failure, Toast.LENGTH_LONG).show();
       }
     }
   }

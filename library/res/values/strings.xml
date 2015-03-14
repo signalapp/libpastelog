@@ -43,4 +43,5 @@
     <string name="log_submit_activity__please_review_this_log_from_my_app">
         Please review this log from my app: %1$s
     </string>
+    <string name="log_submit_activity__network_failure">Network failure. Please try again.</string>
 </resources>
