@@ -20,7 +20,6 @@ package org.whispersystems.libpastelog;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,12 +48,15 @@ import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.whispersystems.libpastelog.util.ProgressDialogAsyncTask;
@@ -64,7 +66,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -370,7 +372,12 @@ public class SubmitLogFragment extends Fragment {
         if (element.has("html_url")) {
           final String url = element.getString("html_url");
           if (!TextUtils.isEmpty(url)) {
-            return url;
+
+            String shortUrl = getShortenedUrl(httpclient, url);
+            if (!TextUtils.isEmpty(shortUrl))
+              return shortUrl;
+            else
+              return url;
           }
         }
 
@@ -393,6 +400,32 @@ public class SubmitLogFragment extends Fragment {
         Toast.makeText(getActivity(), R.string.log_submit_activity__network_failure, Toast.LENGTH_LONG).show();
       }
     }
+  }
+
+  private static String getShortenedUrl(HttpClient httpclient, String url) throws IOException {
+    if (url == null) return null;
+
+    final String shortenerUrl   = "http://git.io/create";
+    final String shortUrlPrefix = "http://git.io/%s";
+
+    HttpPost request = new HttpPost(shortenerUrl);
+
+    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+    nameValuePairs.add(new BasicNameValuePair("url", url));
+    request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+    HttpResponse response = httpclient.execute(request);
+
+    if (response.getStatusLine().getStatusCode() != 200)
+      return null;
+
+    HttpEntity entity = response.getEntity();
+    BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+
+    InputStream input = bufHttpEntity.getContent();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"), 8);
+
+    return String.format(shortUrlPrefix, reader.readLine());
   }
 
   private static long asMegs(long bytes) {
