@@ -4,7 +4,7 @@ A simple library that provides an easy fragment allowing users to throw debug lo
 ## Download
 Gradle:
 ```gradle
-compile 'org.whispersystems:libpastelog:1.0.2'
+compile 'org.whispersystems:libpastelog:1.0.7'
 ```
 
 Maven:
@@ -12,11 +12,11 @@ Maven:
 <dependency>
   <groupId>org.whispersystems</groupId>
   <artifactId>libpastelog</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.7</version>
 </dependency>
 ```
 
-Or download the [latest JAR directly](https://repo1.maven.org/maven2/org/whispersystems/libpastelog/1.0.2/libpastelog-1.0.2.aar).
+Or download the [latest JAR directly](https://repo1.maven.org/maven2/org/whispersystems/libpastelog/1.0.7/libpastelog-1.0.7.aar).
 
 ## Usage
 Check out the sample application in `/sample`, note that:

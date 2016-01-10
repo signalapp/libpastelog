@@ -4,11 +4,11 @@ apply plugin: 'maven'
 android {
 
     compileSdkVersion 22
-    buildToolsVersion '22.0.0'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 21
+        targetSdkVersion 22
     }
 
     compileOptions {
@@ -27,7 +27,15 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.android.support:support-v4:22.1.1'
 }
 
-apply from: 'https://raw.githubusercontent.com/chrisbanes/gradle-mvn-push/8cfffbbff6b9094af1c92318ea5d5a5bb0b8bb30/gradle-mvn-push.gradle'
+apply from: '../gradle-mvn-push.gradle'
+
+afterEvaluate { project ->
+    android.libraryVariants.all { variant ->
+        tasks.androidJavadocs.doFirst {
+            classpath += files(variant.javaCompile.classpath.files)
+        }
+    }
+}
