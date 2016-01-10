@@ -64,6 +64,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.Locale;
@@ -176,7 +177,7 @@ public class SubmitLogFragment extends Fragment {
         if (mListener != null) mListener.onCancel();
       }
     });
-    new PopulateLogcatAsyncTask().execute();
+    new PopulateLogcatAsyncTask(getActivity()).execute();
   }
 
   private static String grabLogcat() {
@@ -299,13 +300,18 @@ public class SubmitLogFragment extends Fragment {
   }
 
   private class PopulateLogcatAsyncTask extends AsyncTask<Void,Void,String> {
+    private WeakReference<Context> weakContext;
+
+    public PopulateLogcatAsyncTask(Context context) {
+      this.weakContext = new WeakReference<>(context);
+    }
 
     @Override
     protected String doInBackground(Void... voids) {
-      final StringBuilder builder = new StringBuilder(buildDescription(getActivity()));
-      builder.append("\n");
-      builder.append(new Scrubber().scrub(grabLogcat()));
-      return builder.toString();
+      Context context = weakContext.get();
+      if (context == null) return null;
+
+      return buildDescription(context) + "\n" + new Scrubber().scrub(grabLogcat());
     }
 
     @Override
