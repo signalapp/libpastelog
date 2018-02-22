@@ -89,7 +89,7 @@ public class SubmitLogFragment extends Fragment {
   private String   hackSavedLogUrl;
   private boolean  emailActivityWasStarted = false;
 
-  private static final String API_ENDPOINT = "https://api.github.com/gists";
+  private static final String API_ENDPOINT = "https://hastebin.com/documents";
 
   private OnLogSubmittedListener mListener;
 
@@ -344,16 +344,8 @@ public class SubmitLogFragment extends Fragment {
     @Override
     protected String doInBackground(Void... voids) {
       try {
-        final JSONObject outJson = new JSONObject();
-        final JSONObject catlog  = new JSONObject(Collections.singletonMap("content", paste));
-        final JSONObject files   = new JSONObject();
-        files.put("cat.log", catlog);
-        outJson.put("files", files);
-        outJson.put("public", false);
-
         HttpPost request = new HttpPost(API_ENDPOINT);
-
-        request.setEntity(new ByteArrayEntity(outJson.toString().getBytes()));
+        request.setEntity(new ByteArrayEntity(paste.getBytes()));
 
         HttpClient   httpclient = new DefaultHttpClient();
         HttpResponse response   = httpclient.execute(request);
@@ -373,10 +365,10 @@ public class SubmitLogFragment extends Fragment {
         String     responseBody = sb.toString();
         JSONObject element      = new JSONObject(responseBody);
 
-        if (element.has("html_url")) {
-          final String url = element.getString("html_url");
-          if (!TextUtils.isEmpty(url)) {
-            return url;
+        if (element.has("key")) {
+          final String key = element.getString("key");
+          if (!TextUtils.isEmpty(key)) {
+            return "https://hastebin.com/" + key;
           }
         }
 
