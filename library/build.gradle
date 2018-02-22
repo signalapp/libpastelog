@@ -1,10 +1,20 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'signing'
+
+archivesBaseName = "libpastelog"
+version          = version_number
+group            = group_info
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
 
 android {
 
     compileSdkVersion 22
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '25.0.3'
 
     defaultConfig {
         minSdkVersion 7
@@ -24,18 +34,106 @@ android {
             java.srcDirs = ['src']
         }
     }
+
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.aar')) {
+                def fileName = "${archivesBaseName}-${version}.aar"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:22.1.1'
 }
 
-apply from: '../gradle-mvn-push.gradle'
+tasks.whenTaskAdded { task ->
+    if (task.name.equals("lint")) {
+        task.enabled = false
+    }
+}
 
-afterEvaluate { project ->
-    android.libraryVariants.all { variant ->
-        tasks.androidJavadocs.doFirst {
-            classpath += files(variant.javaCompile.classpath.files)
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
+
+def getReleaseRepositoryUrl() {
+    return hasProperty('sonatypeRepo') ? sonatypeRepo
+            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
+
+def getRepositoryUsername() {
+    return hasProperty('whisperSonatypeUsername') ? whisperSonatypeUsername : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('whisperSonatypePassword') ? whisperSonatypePassword : ""
+}
+
+
+signing {
+    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories.mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+        repository(url: getReleaseRepositoryUrl()) {
+            authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+        }
+
+        pom.project {
+            name 'libpastelog'
+            packaging 'aar'
+            description 'Easily allow users to post debug logs online'
+            url 'https://github.com/signalapp/libpastelog'
+
+            scm {
+                url 'scm:git@github.com:signalapp/libpastelog.git'
+                connection 'scm:git@github.com:signalapp/libpastelog.git'
+                developerConnection 'scm:git@github.com:signalapp/libpastelog.git'
+            }
+
+            licenses {
+                license {
+                    name 'GPLv3'
+                    url 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    name 'Moxie Marlinspike'
+                }
+            }
         }
     }
 }
+
+task installArchives(type: Upload) {
+    description "Installs the artifacts to the local Maven repository."
+    configuration = configurations['archives']
+    repositories {
+        mavenDeployer {
+            repository url: "file://${System.properties['user.home']}/.m2/repository"
+        }
+    }
+}
+
+
+//apply from: '../gradle-mvn-push.gradle'
+//
+//afterEvaluate { project ->
+//    android.libraryVariants.all { variant ->
+//        tasks.androidJavadocs.doFirst {
+//            classpath += files(variant.javaCompile.classpath.files)
+//        }
+//    }
+//}

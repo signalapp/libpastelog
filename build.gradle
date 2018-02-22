@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:2.3.0'
     }
 }
 
@@ -13,3 +13,17 @@ allprojects {
         jcenter()
     }
 }
+
+subprojects {
+    ext.version_number     = "1.1.0"
+    ext.group_info         = "org.whispersystems"
+
+    if (JavaVersion.current().isJava8Compatible()) {
+        allprojects {
+            tasks.withType(Javadoc) {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
+}
+
