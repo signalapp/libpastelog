@@ -20,7 +20,6 @@ package org.whispersystems.libpastelog;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,14 +46,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.whispersystems.libpastelog.util.ProgressDialogAsyncTask;
@@ -62,12 +53,18 @@ import org.whispersystems.libpastelog.util.Scrubber;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.Locale;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * A helper {@link Fragment} to preview and submit logcat information to a public pastebin.
@@ -89,7 +86,7 @@ public class SubmitLogFragment extends Fragment {
   private String   hackSavedLogUrl;
   private boolean  emailActivityWasStarted = false;
 
-  private static final String API_ENDPOINT = "https://hastebin.com/documents";
+  private static final String API_ENDPOINT = "https://debuglogs.org";
 
   private OnLogSubmittedListener mListener;
 
@@ -344,36 +341,35 @@ public class SubmitLogFragment extends Fragment {
     @Override
     protected String doInBackground(Void... voids) {
       try {
-        HttpPost request = new HttpPost(API_ENDPOINT);
-        request.setEntity(new ByteArrayEntity(paste.getBytes()));
+        OkHttpClient client   = new OkHttpClient.Builder().build();
+        Response     response = client.newCall(new Request.Builder().url(API_ENDPOINT).get().build()).execute();
+        ResponseBody body     = response.body();
 
-        HttpClient   httpclient = new DefaultHttpClient();
-        HttpResponse response   = httpclient.execute(request);
-
-        HttpEntity         entity        = response.getEntity();
-        BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-        InputStream        input         = bufHttpEntity.getContent();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"), 8);
-        StringBuilder  sb     = new StringBuilder();
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-          sb.append(line).append("\n");
+        if (!response.isSuccessful() || body == null) {
+          throw new IOException("Unsuccessful response: " + response);
         }
 
-        String     responseBody = sb.toString();
-        JSONObject element      = new JSONObject(responseBody);
+        JSONObject            json   = new JSONObject(body.string());
+        String                url    = json.getString("url");
+        JSONObject            fields = json.getJSONObject("fields");
+        String                item   = fields.getString("key");
+        MultipartBody.Builder post   = new MultipartBody.Builder();
+        Iterator<String>      keys   = fields.keys();
 
-        if (element.has("key")) {
-          final String key = element.getString("key");
-          if (!TextUtils.isEmpty(key)) {
-            return "https://hastebin.com/" + key;
-          }
+        while (keys.hasNext()) {
+          String key = keys.next();
+          post.addFormDataPart(key, fields.getString(key));
         }
 
-        throw new IOException("Gist's response was malformed");
+        post.addFormDataPart("file", "file", RequestBody.create(MediaType.parse("text/plain"), paste));
 
+        Response postResponse = client.newCall(new Request.Builder().url(url).post(post.build()).build()).execute();
+
+        if (!postResponse.isSuccessful()) {
+          throw new IOException("Bad response: " + postResponse);
+        }
+
+        return API_ENDPOINT + "/" + item;
       } catch (IOException | JSONException e) {
         Log.w("ImageActivity", e);
       }
