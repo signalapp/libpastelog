@@ -356,6 +356,8 @@ public class SubmitLogFragment extends Fragment {
         MultipartBody.Builder post   = new MultipartBody.Builder();
         Iterator<String>      keys   = fields.keys();
 
+        post.addFormDataPart("Content-Type", "text/plain");
+        
         while (keys.hasNext()) {
           String key = keys.next();
           post.addFormDataPart(key, fields.getString(key));
