@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ /**
+  ~ * Copyright (C) 2014 Whisper Systems
+  ~ *
+  ~ * This program is free software: you can redistribute it and/or modify
+  ~ * it under the terms of the GNU General Public License as published by
+  ~ * the Free Software Foundation, either version 3 of the License, or
+  ~ * (at your option) any later version.
+  ~ *
+  ~ * This program is distributed in the hope that it will be useful,
+  ~ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ * GNU General Public License for more details.
+  ~ *
+  ~ * You should have received a copy of the GNU General Public License
+  ~ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+  ~ */
+  -->
+
+<resources>
+    <string name="app_name">libpastelog</string>
+
+    <string name="log_submit_activity__button_dont_submit">Не шаљи</string>
+    <string name="log_submit_activity__button_submit">Пошаљи</string>
+    <string name="log_submit_activity__button_got_it">Важи</string>
+    <string name="log_submit_activity__button_compose_email">Састави е-поруку</string>
+
+    <string name="log_submit_activity__this_log_will_be_posted_online">
+        Овај запис ће бити окачен јавно да би га програмери видели, можете да га прегледате и уредите пре слања.
+    </string>
+    <string name="log_submit_activity__loading_logs">Учитавам записе…</string>
+    <string name="log_submit_activity__submitting">Шаљем</string>
+    <string name="log_submit_activity__uploading_logs">Отпремам записе…</string>
+
+    <string name="log_submit_activity__success">Успех!</string>
+    <string name="log_submit_activity__copy_this_url_and_add_it_to_your_issue">
+        Копирајте овај УРЛ и приложите га у вашу пријаву грешке или е-поруку подршци:\n\n<b>%1$s</b>\n
+    </string>
+    <string name="log_submit_activity__copied_to_clipboard">Копирано на клипборд</string>
+    <string name="log_submit_activity__choose_email_app">Изаберите апликацију за е-пошту</string>
+    <string name="log_submit_activity__please_review_this_log_from_my_app">
+        Please review this log from my app: %1$s
+    </string>
+    <string name="log_submit_activity__network_failure">Неуспех мреже. Покушајте поново.</string>
+</resources>
